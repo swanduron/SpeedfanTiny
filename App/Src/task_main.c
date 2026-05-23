@@ -97,6 +97,9 @@ uint8_t pwmDutyCal(uint8_t high, uint8_t low, float temp) {
 static uint32_t s_lastActivityTime = 0;
 static uint8_t  s_isIdle           = 0;
 
+// Forward declaration — defined after action callbacks
+void sysConfigCmp(uint8_t *p, uint8_t *pShadow);
+
 static void resetIdleTimer(void) {
     s_lastActivityTime = HAL_GetTick();
     if (s_isIdle) {
@@ -111,6 +114,7 @@ void idleOperation(void) {
         OLED_SetContrast(OLED_CONTRAST_DIM);
         if (systemMode == ModeSetting) {
             systemMode = ModeNormal;
+            sysConfigCmp(sysConfig, sysConfigShadow);
         }
     }
 }
