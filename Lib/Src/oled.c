@@ -46,7 +46,7 @@ uint8_t OLED_GRAM[OLED_PAGE][OLED_COLUMN];
  * @return None
  * @note 此函数是移植本驱动时的重要函数 将本驱动库移植到其他平台时应根据实际情况修改此函数
  */
-void OLED_Send(uint8_t *data, uint8_t len)
+void OLED_Send(uint8_t *data, uint16_t len)
 {
   HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, data, len, HAL_MAX_DELAY);
 }
