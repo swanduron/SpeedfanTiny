@@ -72,7 +72,7 @@ void OLED_Init()
   OLED_SendCmd(0xAE); /*关闭显示 display off*/
 
   OLED_SendCmd(0x20);
-  OLED_SendCmd(0x10);
+  OLED_SendCmd(0x00); // Horizontal addressing mode
 
   OLED_SendCmd(0xB0);
 
@@ -182,16 +182,19 @@ void OLED_NewFrame()
  */
 void OLED_ShowFrame()
 {
-  static uint8_t sendBuffer[OLED_COLUMN + 1];
-  sendBuffer[0] = 0x40;
-  for (uint8_t i = 0; i < OLED_PAGE; i++)
-  {
-    OLED_SendCmd(0xB0 + i); // 设置页地址
-    OLED_SendCmd(0x00);     // 设置列地址低4位
-    OLED_SendCmd(0x10);     // 设置列地址高4位
-    memcpy(sendBuffer + 1, OLED_GRAM[i], OLED_COLUMN);
-    OLED_Send(sendBuffer, OLED_COLUMN + 1);
-  }
+  // Set column address range: 0 ~ 127
+  OLED_SendCmd(0x21);
+  OLED_SendCmd(0x00);
+  OLED_SendCmd(0x7F);
+  // Set page address range: 0 ~ 7
+  OLED_SendCmd(0x22);
+  OLED_SendCmd(0x00);
+  OLED_SendCmd(0x07);
+  // Send entire frame in one I2C transaction (1 + 1024 bytes)
+  static uint8_t frameBuffer[1 + OLED_PAGE * OLED_COLUMN];
+  frameBuffer[0] = 0x40;
+  memcpy(frameBuffer + 1, OLED_GRAM, OLED_PAGE * OLED_COLUMN);
+  OLED_Send(frameBuffer, sizeof(frameBuffer));
 }
 
 /**
